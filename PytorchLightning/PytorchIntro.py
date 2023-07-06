@@ -1,7 +1,6 @@
-# Implement a perceptron model
-
+import torch
 import numpy as np
-from typing import Union, List
+from typing import Union
 
 
 # create classification dataset
@@ -13,18 +12,18 @@ def create_dataset(
     return X, y
 
 
+
 class Perceptron:
     def __init__(self, n_features) -> None:
         self.n_features = n_features
-        self.weights = np.zeros(self.n_features)
-        self.bias = 0.0
+        self.weights = torch.zeros(self.n_features)
+        self.bias = torch.tensor(0.0)
 
-    def forward(self, x: np.ndarray) -> int:
+    def forward(self, x) -> torch.Tensor:
         # x1*w1 + x2*w2 + ... + xn*wn + b
-        weighted_sum = self.bias
-        for i, _ in enumerate(self.weights):
-            weighted_sum += np.dot(x, self.weights)
-        return np.where(weighted_sum > 0, 1, 0)
+        weighted_sum = torch.dot(x, self.weights) + self.bias
+
+        return torch.where(weighted_sum > 0, 1, 0)
 
     def update(self, x, y_true) -> float:
         """
@@ -34,10 +33,11 @@ class Perceptron:
         error = y_true - y_pred
 
         # update weights and bias
-        for i, _ in enumerate(self.weights):
-            self.weights[i] += error * x[i]
-
+        self.weights += error * x
+        self.bias += error
+        # print(error.dtype)
         return error
+
 
 def evaluate(model, X: np.ndarray, y: np.ndarray) -> float:
     """
@@ -59,19 +59,24 @@ def train(model, X: np.ndarray, y: np.array, n_epochs: int):
         # feed data sample by sample
         for x, y in zip(X, Y):
             error = model.update(x, y)
+            # break
             errors += abs(error)
         print(f"epoch: {epoch}, errors: {errors}")
 
 
 # test
 import time
-X, Y = create_dataset(1000, 2, 2)
-# X= [-1.2, 2.4]
-# Y = 0
+X, Y = create_dataset(10000, 2, 2)
+# Convert to torch tensors 
+X = torch.from_numpy(X)
+Y = torch.from_numpy(Y)
+# convert to float32
+X = X.to(dtype=torch.float32)
+Y = Y.to(dtype=torch.float32)
 ppn = Perceptron(2)
-# print(ppn.update(X, Y))
+# compute the time
 start = time.time()
-train(ppn, X, Y, 10)
-print(time.time() - start)
-
 # print(evaluate(ppn, X, Y))
+train(ppn, X, Y, 10)
+end = time.time()
+print(end - start)
