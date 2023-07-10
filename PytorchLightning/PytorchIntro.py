@@ -39,7 +39,7 @@ class Perceptron:
         return error
 
 
-def evaluate(model, X: np.ndarray, y: np.ndarray) -> float:
+def evaluate(model, X: torch.Tensor, y: torch.Tensor) -> float:
     """
     Evaluate the model on the test set.
     """
@@ -53,7 +53,7 @@ def evaluate(model, X: np.ndarray, y: np.ndarray) -> float:
     return acc
 
 
-def train(model, X: np.ndarray, y: np.array, n_epochs: int):
+def train(model, X: torch.Tensor, y: torch.Tensor, n_epochs: int):
     for epoch in range(n_epochs):
         errors = 0
         # feed data sample by sample
